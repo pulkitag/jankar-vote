@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+/* CSS goes here. */
+
+</style>
+
+<html>
+<head>
+<!--
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="/usr/lib/node_modules/topojson/topojson.min.js"></script>
+-->
+<script src="/home/pulkit/Documents/Others/jankar/d3/d3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script type="text/javascript">
+document.write("Hello");
+
+</script>
+
+<script>
+document.write("Hello123");
+document.getElementById("demo").innerHTML="asasa";
+function myFunction()
+{
+document.getElementById("demo").innerHTML="My First JavaScript Function";
+}
+</script>
+
+
+</script>
+</head>
+<body>
+<script>
+document.getElementById("myResults").innerHTML = "Hello World!";
+</script>
+<p id="demo">A Paragraph</p>
+<p> My Motu1 </p>
+<div id="myResults">sd</div>
+<button type="button" onclick="myFunction()">Try it</button>
+
+<script>
+document.getElementById("demo").innerHTML="asasa";
+</script>
+</body>
+
+<script>
+var width = 960,
+    height = 1860;
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+   
+/* JavaScript goes here. */
+
+
+/**
+d3.json("india.json", function(error, india) {
+  svg.append("path")
+      .datum(topojson.feature(india, india.objects.subunits))
+      .attr("d", d3.geo.path().projection(d3.geo.mercator()));
+});
+*/
+
+//var subunits = topojson.feature(uk, uk.objects.subunits);
+
+
+
+
+d3.json("india.json", function(error, india) {
+
+	
+	var projection = d3.geo.mercator()
+		.scale(1)
+		.translate([0,0]);
+    
+	var path = d3.geo.path()
+	    .projection(projection);
+	
+	var b = path.bounds(india),
+		s = .95/Math.max((b[1][0] - b[0][0])/width, (b[1][1] - b[0][1])/height)),
+		t = [(width - s * (b[1][0] + b[0][0]))/2, (height - s * (b[1][1] + b[0][1]))/2];
+
+	<p id="demo1">Variables</p>
+
+	var projection1 = d3.geo.mercator()
+			.scale(s)
+			.translate(t);
+
+	var path1 = d3.geo.path()
+		.projection(projection1);
+
+  svg.append("path")
+      .datum(topojson.feature(india, india.objects.subunits))
+      .attr("d", path1);
+});
+
+
+</html>
+
+

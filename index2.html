@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.subunit-boundary {
+  fill: none;
+  stroke: #777;
+  stroke-dasharray: 2,2;
+  stroke-linejoin: round;
+}
+.subunit.Jharkhand { fill: #ddc; }
+
+.q0-9 { fill:rgb(247,251,255); }
+.q1-9 { fill:rgb(222,235,247); }
+.q2-9 { fill:rgb(198,219,239); }
+.q3-9 { fill:rgb(158,202,225); }
+.q4-9 { fill:rgb(107,174,214); }
+.q5-9 { fill:rgb(66,146,198); }
+.q6-9 { fill:rgb(33,113,181); }
+.q7-9 { fill:rgb(8,81,156); }
+.q8-9 { fill:rgb(8,48,107); }
+
+/* CSS goes here. */
+
+</style>
+
+<html>
+<head>
+<!--
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="/home/pulkit/Documents/Others/jankar/d3/d3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="/usr/lib/node_modules/topojson/topojson.min.js"></script>
+-->
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script type="text/javascript">
+document.write("Hello");
+
+</script>
+
+<script>
+document.write("Hello123");
+document.getElementById("demo").innerHTML="asasa";
+function myFunction()
+{
+document.getElementById("demo").innerHTML="My First JavaScript Function";
+}
+</script>
+
+<script>
+var width = 960,
+    height = 1860;
+
+var rateById = d3.map();
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var quantize = d3.scale.quantize()
+    .domain([0, 4000])
+    .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
+
+d3.json("india3.json", function(india) {
+
+var projection = d3.geo.mercator()
+				 .scale(1)
+				 .translate([0,0]);
+		
+var path = d3.geo.path()
+    .projection(projection);
+ 
+var indiaGeo = topojson.feature(india, india.objects.adm1);
+ var center = d3.geo.centroid(indiaGeo);
+ console.log(center);
+
+ 
+ var b = path.bounds(indiaGeo),
+      s = 0.95/Math.max((b[1][0] - b[0][0])/width, (b[1][1] - b[0][1])/height),
+	  t = [(width - s * (b[1][0] + b[0][0]))/2, (height - s * (b[1][1] + b[0][1]))/2];
+
+   console.log(india);
+   console.log(projection);
+   console.log(b[0][0],b[0][1],b[1][0],b[1][1]);
+   console.log(s);
+   console.log(t);
+
+  var projection1 = d3.geo.mercator()
+	  .scale(s)
+	  .translate(t);
+
+  var path1 = d3.geo.path()
+	  .projection(projection1);
+  
+svg.append("path")
+      .datum(indiaGeo)
+      .attr("d", path1);
+      //.attr("d", d3.geo.path().projection(d3.geo.mercator()));
+
+svg.append("path")
+    .datum(topojson.mesh(india, india.objects.adm1, function(a,b){return a != b;} ))	
+    .attr("d", path1)
+    .attr("class", "subunit-boundary");
+
+svg.selectAll(".adm1")
+      .data(topojson.feature(india, india.objects.adm1).features)
+    .enter().append("path")
+      .attr("class", function(d) { return quantize(d.id); })
+      .attr("d", path1);
+
+/*
+//This works
+svg.selectAll(".adm1")
+      .data(topojson.feature(india, india.objects.adm1).features)
+    .enter().append("path")
+      .attr("class", function(d) { return "subunit " + d.properties.name; })
+      .attr("d", path1);
+*/
+});
+</script>
+
+
+</head>
+<body>
+<script>
+document.getElementById("myResults").innerHTML = "Hello World!";
+</script>
+<p id="demo">A Paragraph</p>
+<p> My Motu1 </p>
+<div id="myResults">sd</div>
+<button type="button" onclick="myFunction()">Try it</button>
+
+<script>
+document.getElementById("demo").innerHTML="asasa222222";
+</script>
+</body>
+
+
+</html>
+
+
