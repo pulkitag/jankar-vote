@@ -33,6 +33,7 @@
 <script src="/usr/lib/node_modules/topojson/topojson.min.js"></script>
 -->
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/queue.v1.min.js"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <script type="text/javascript">
 document.write("Hello");
@@ -59,65 +60,70 @@ var svg = d3.select("body").append("svg")
     .attr("height", height);
 
 var quantize = d3.scale.quantize()
-    .domain([0, 4000])
+    .domain([0, 1])
     .range(d3.range(9).map(function(i) { return "q" + i + "-9"; }));
 
-d3.json("india3.json", function(india) {
 
-var projection = d3.geo.mercator()
-				 .scale(1)
-				 .translate([0,0]);
+queue()
+    .defer(d3.json, "india3.json")
+    .defer(d3.tsv, "sample.csv", function(d) { rateById.set(d.id, +d.value); })
+    .await(ready);
+
+function ready(error,india) {
+
+	var projection = d3.geo.mercator()
+					 .scale(1)
+					 .translate([0,0]);
 		
-var path = d3.geo.path()
-    .projection(projection);
- 
-var indiaGeo = topojson.feature(india, india.objects.adm1);
- var center = d3.geo.centroid(indiaGeo);
- console.log(center);
+	var path = d3.geo.path()
+		.projection(projection);
+	 
+	var indiaGeo = topojson.feature(india, india.objects.adm1);
+    
+    var center = d3.geo.centroid(indiaGeo);
+	console.log(center);
+    var b = path.bounds(indiaGeo),
+		  s = 0.95/Math.max((b[1][0] - b[0][0])/width, (b[1][1] - b[0][1])/height),
+		  t = [(width - s * (b[1][0] + b[0][0]))/2, (height - s * (b[1][1] + b[0][1]))/2];
 
- 
- var b = path.bounds(indiaGeo),
-      s = 0.95/Math.max((b[1][0] - b[0][0])/width, (b[1][1] - b[0][1])/height),
-	  t = [(width - s * (b[1][0] + b[0][0]))/2, (height - s * (b[1][1] + b[0][1]))/2];
+	   console.log(india);
+	   console.log(projection);
+	   console.log(b[0][0],b[0][1],b[1][0],b[1][1]);
+	   console.log(s);
+	   console.log(t);
 
-   console.log(india);
-   console.log(projection);
-   console.log(b[0][0],b[0][1],b[1][0],b[1][1]);
-   console.log(s);
-   console.log(t);
+	  var projection1 = d3.geo.mercator()
+		  .scale(s)
+		  .translate(t);
 
-  var projection1 = d3.geo.mercator()
-	  .scale(s)
-	  .translate(t);
+	  var path1 = d3.geo.path()
+		  .projection(projection1);
+	  
+	svg.append("path")
+		  .datum(indiaGeo)
+		  .attr("d", path1);
+		  //.attr("d", d3.geo.path().projection(d3.geo.mercator()));
 
-  var path1 = d3.geo.path()
-	  .projection(projection1);
-  
-svg.append("path")
-      .datum(indiaGeo)
-      .attr("d", path1);
-      //.attr("d", d3.geo.path().projection(d3.geo.mercator()));
+	svg.append("path")
+		.datum(topojson.mesh(india, india.objects.adm1, function(a,b){return a != b;} ))	
+		.attr("d", path1)
+		.attr("class", "subunit-boundary");
 
-svg.append("path")
-    .datum(topojson.mesh(india, india.objects.adm1, function(a,b){return a != b;} ))	
-    .attr("d", path1)
-    .attr("class", "subunit-boundary");
+	svg.selectAll(".adm1")
+		  .data(topojson.feature(india, india.objects.adm1).features)
+		.enter().append("path")
+		  .attr("class", function(d) { console.log(rateById.get(d.id)); return quantize(rateById.get(d.id)); })
+		  .attr("d", path1);
 
-svg.selectAll(".adm1")
-      .data(topojson.feature(india, india.objects.adm1).features)
-    .enter().append("path")
-      .attr("class", function(d) { return quantize(d.id); })
-      .attr("d", path1);
-
-/*
-//This works
-svg.selectAll(".adm1")
-      .data(topojson.feature(india, india.objects.adm1).features)
-    .enter().append("path")
-      .attr("class", function(d) { return "subunit " + d.properties.name; })
-      .attr("d", path1);
-*/
-});
+	/*
+	//This works
+	svg.selectAll(".adm1")
+		  .data(topojson.feature(india, india.objects.adm1).features)
+		.enter().append("path")
+		  .attr("class", function(d) { return "subunit " + d.properties.name; })
+		  .attr("d", path1);
+	*/
+}
 </script>
 
 
